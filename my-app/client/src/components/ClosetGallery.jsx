@@ -1,14 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import shirt from "../images/shirtnshorts.png";
 
 // this component is meant to retrieve and display a users uploaded closet images
 const ClosetGallery = () => {
-  const num = 30;
-  const squaresArray = Array.from({ length: num });
+  const [closetImages, setClosetImages]=useState([])
+  // const num = 30;
+  // const squaresArray = Array.from({ length: num });
+
+//   http://localhost:8080/userinfo
+// Method=GET
+// payload shoudl JSON={
+//     "userId":"573d67a480dfa8028958c467"
+// }
+const user = JSON.parse(localStorage.getItem("user"));
+
+useEffect(()=>{
+
+  getClosetImages()
+
+}, [])
+
+const getClosetImages=async()=>{
+  const imagesData = await fetch("http://localhost:8080/userinfo", {
+    method: "GET",
+    body: user?._id,
+  });
+  setClosetImages(imagesData)
+}
+
+
 
   return (
     <div className="js-card-container flex gap-x-4 gap-y-2 snap-y  snap-proximity  ">
-      {squaresArray.map((index) => (
+      {closetImages.map((index) => (
         <div
           key={index}
           className={`js-card bg-blue-300 px-2 mt-2 p-4 xl:px-4 flex flex-col  items-center gap-y-2 snap-center rounded

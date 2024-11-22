@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import SquareGrid from "../components/SquareGridY";
 import UploadModal from "../components/UploadModal";
@@ -7,6 +7,44 @@ const Closet = () => {
   const [currentFilter, setFilter] = useState("All");
   const [isModalOpen, setModalOpen] = useState(false);
   const filterOptions = ["All", "Headwear", "Tops", "Bottoms", "Footwear"];
+
+  const [closetImages, setClosetImages]=useState([])
+  const [imageUploaded, setImageUploaded]= useState(false)
+  // const num = 30;
+  // const squaresArray = Array.from({ length: num });
+
+
+const user = JSON.parse(localStorage.getItem("user"));
+
+useEffect(()=>{
+  getClosetImages()
+
+}, [imageUploaded])
+
+
+const userId=user?._id
+
+
+const getClosetImages = async () => {
+  try {
+    const response = await fetch(`http://localhost:8080/userinfo?userId=${userId}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch closet images:", response.statusText);
+      return;
+    }
+
+    const data = await response.json(); // Parse the JSON response
+    // Assuming images are located inside `data.user.images`
+    setClosetImages(data.user.images);
+  } catch (error) {
+    console.error("Error fetching closet images:", error);
+  }
+};
+
+
 
   const handleFilter = (filter) => {
     setFilter(filter);
@@ -79,7 +117,7 @@ const Closet = () => {
             <div className=" inner-closet-container flex flex-col w-full h-full gap-y-1  ">
               <div className=" sticky-top-div bg-stone-300 w-1/4 sticky top-0 flex text-center  text-xl font-bold py-4"></div>
               <div className="closet-grid-container bg-stone-400 overflow-y-auto">
-                <SquareGrid />
+                <SquareGrid closetImages={closetImages}/>
               </div>
               <div className="sticky-bottom-div  sticky bottom-0 mt-4 py-2">
                 <button
@@ -91,7 +129,7 @@ const Closet = () => {
                   Add item
                 </button>
                 {/* pass props to UploadModal component(dictates whether modal is visible) */}
-                <UploadModal isOpen={isModalOpen} toggleModal={toggleModal} />
+                <UploadModal isOpen={isModalOpen} toggleModal={toggleModal} setImageUploaded={setImageUploaded} />
               </div>
             </div>
           </section>
